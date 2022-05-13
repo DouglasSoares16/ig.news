@@ -1,11 +1,23 @@
 import { GetStaticProps } from "next";
 import Head from "next/head";
 import Prismic from "@prismicio/client";
+import { RichText } from "prismic-dom";
 
 import { getPrismicClient } from "../../services/prismic";
 import styles from "./styles.module.scss";
 
-export default function Posts() {
+type Post = {
+  slug: string;
+  title: string;
+  excerpt: string;
+  updated_at: string;
+};
+
+interface PostsProps {
+  posts: Post[];
+}
+
+export default function Posts({ posts }: PostsProps) {
   return (
     <>
       <Head>
@@ -14,23 +26,17 @@ export default function Posts() {
 
       <main className={styles.container}>
         <div className={styles.posts}>
-          <a href="#">
-            <time>12 de maio de 2022</time>
-            <strong>Creating a Monorepo with Lerna & Yarn Workspaces</strong>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Velit esse maiores ut explicabo culpa reiciendis cupiditate quam repellendus voluptates.</p>
-          </a>
-
-          <a href="#">
-            <time>12 de maio de 2022</time>
-            <strong>Creating a Monorepo with Lerna & Yarn Workspaces</strong>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Velit esse maiores ut explicabo culpa reiciendis cupiditate quam repellendus voluptates.</p>
-          </a>
-
-          <a href="#">
-            <time>12 de maio de 2022</time>
-            <strong>Creating a Monorepo with Lerna & Yarn Workspaces</strong>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Velit esse maiores ut explicabo culpa reiciendis cupiditate quam repellendus voluptates.</p>
-          </a>
+          {
+            posts.map((post) => {
+              return (
+                <a key={post.slug} href="#">
+                  <time>{post.updated_at}</time>
+                  <strong>{post.title}</strong>
+                  <p>{post.excerpt}</p>
+                </a>
+              );
+            })
+          }
         </div>
       </main>
     </>
@@ -40,7 +46,7 @@ export default function Posts() {
 export const getStaticProps: GetStaticProps = async () => {
   const prismic = getPrismicClient();
 
-  const response = await prismic.query(
+  const response = await prismic.query<any>(
     [
       Prismic.Predicates.at("document.type", "publication"),
     ],
@@ -49,12 +55,23 @@ export const getStaticProps: GetStaticProps = async () => {
       pageSize: 100,
     }
   );
-
-  console.log(response);
+  
+  const posts = response.results.map((post) => {
+    return {
+      slug: post.uid,
+      title: RichText.asText(post.data.title),
+      excerpt: post.data.content.find((content) => content.type === "paragraph")?.text ?? "",
+      updated_at: new Date(post.last_publication_date).toLocaleDateString("pt-BR", {
+        day: "2-digit",
+        month: "long",
+        year: "numeric",
+      })
+    };
+  });
 
   return {
     props: {
-      response
+      posts
     }
-  }; 
+  };
 }
