@@ -3,7 +3,7 @@
 O projeto 'ig.news' uma aplicação que funciona como uma "newsletter" onde o usuário poderá fazer uma assinatura para consumir conteúdos sobre React.
 
 <div align="center" style="margin-bottom: 40px; margin-top: 40px;">
-  <img style="max-width: 490px" src=".github/capa.png" alt="Imagem do Projeto" />
+  <img style="max-width: 490px" src=".github/capa.PNG" alt="Imagem do Projeto" />
 </div>
 
 ## 🚀 Tecnologias
