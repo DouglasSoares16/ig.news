@@ -1,13 +1,13 @@
-import { GetStaticProps } from "next";
-import { getSession, useSession } from "next-auth/react";
+import { GetStaticProps, GetStaticPaths } from "next";
+import { useSession } from "next-auth/react";
 import Head from "next/head";
+import Link from "next/link";
+import { useRouter } from "next/router";
 import { RichText } from "prismic-dom";
+import { useEffect } from "react";
 
 import styles from "../post.module.scss";
 import { getPrismicClient } from "../../../services/prismic";
-import Link from "next/link";
-import { useEffect } from "react";
-import { useRouter } from "next/router";
 
 interface PostPreviewProps {
   post: {
@@ -55,7 +55,7 @@ export default function PostPreview({ post }: PostPreviewProps) {
   );
 }
 
-export const getStaticPaths = () => {
+export const getStaticPaths: GetStaticPaths = async () => {
   return {
     paths: [],
     fallback: "blocking"
@@ -83,6 +83,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   return {
     props: {
       post
-    }
+    },
+    revalidate: 60 * 30, // 30 minutes
   };
 }
